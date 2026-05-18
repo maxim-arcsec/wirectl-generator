@@ -1,0 +1,29 @@
+[project]
+name = "wirectl-generator"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "Maxim Deloof", email = "maxim@arcsecspace.com" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "click>=8.4.0",
+    "jinja2>=3.1.6",
+    "wirectl",
+]
+
+[project.scripts]
+wirectl-generator = "wirectl_generator:main"
+
+[build-system]
+requires = ["uv_build>=0.11.8,<0.12.0"]
+build-backend = "uv_build"
+
+[tool.uv.sources]
+wirectl = { path = "../wirectl" }
+
+[[tool.uv.index]]
+name = "arcsec-develop"
+url = "http://devpi/arcsec/develop"
+publish-url = "http://devpi/arcsec/develop"

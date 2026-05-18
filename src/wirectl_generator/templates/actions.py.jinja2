@@ -1,0 +1,70 @@
+from dataclasses import dataclass
+from datetime import timedelta
+
+from wirectl import ActionRequest, ActionResponse
+from wirectl.types import (
+    Array8,
+    Array64,
+    Array1024,
+    f32,
+    f64,
+    s8,
+    s16,
+    s32,
+    s64,
+    u8,
+    u16,
+    u32,
+    u64,
+)
+
+{% for action in icd.actions %}
+@dataclass
+class {{ action.name }}Response(ActionResponse):
+    """
+    {% if action.description %}
+    {{ action.description }}
+
+    {% endif %}
+    Args:
+        {% for field in action.res_fields %}
+        {% if field.description %}
+        {{ field.name }}: {{ field.description }}
+        {% endif %}
+        {% endfor %}
+    """
+
+    ID = {{ action.id }}
+    {% if action.communication_timeout_ms %}
+    TIMEOUT = timedelta(milliseconds={{ action.communication_timeout_ms }})
+    {% else %}
+    TIMEOUT = timedelta(milliseconds={{ icd.additional_options.default_communication_timeout_ms }})
+    {% endif %}
+
+    {% for field in action.res_fields %}
+    {{ field.name }}: {{ field.type.__name__ }}
+    {% endfor %}
+
+@dataclass
+class {{ action.name }}Request(ActionRequest):
+    """
+    {% if action.description %}
+    {{ action.description }}
+
+    {% endif %}
+    Args:
+        {% for field in action.req_fields %}
+        {% if field.description %}
+        {{ field.name }}: {{ field.description }}
+        {% endif %}
+        {% endfor %}
+    """
+
+    ID = {{ action.id }}
+    RESPONSE = {{ action.name}}Response
+
+    {% for field in action.req_fields %}
+    {{ field.name }}: {{ field.type.__name__ }}
+    {% endfor %}
+
+{% endfor %}

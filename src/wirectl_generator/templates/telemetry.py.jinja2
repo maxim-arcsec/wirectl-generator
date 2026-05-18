@@ -1,0 +1,48 @@
+from dataclasses import dataclass
+from datetime import timedelta
+
+from wirectl import Telemetry
+from wirectl.types import (
+    Array8,
+    Array64,
+    Array1024,
+    f32,
+    f64,
+    s8,
+    s16,
+    s32,
+    s64,
+    u8,
+    u16,
+    u32,
+    u64,
+)
+
+{% for telemetry in icd.telemetry %}
+@dataclass
+class {{ telemetry.name }}(Telemetry):
+    """
+    {% if telemetry.description %}
+    {{ telemetry.description }}
+
+    {% endif %}
+    Args:
+        {% for field in telemetry.fields %}
+        {% if field.description %}
+        {{ field.name }}: {{ field.description }}
+        {% endif %}
+        {% endfor %}
+    """
+
+    ID = {{ telemetry.id }}
+    {% if telemetry.communication_timeout_ms %}
+    TIMEOUT = timedelta(milliseconds={{ telemetry.communication_timeout_ms }})
+    {% else %}
+    TIMEOUT = timedelta(milliseconds={{ icd.additional_options.default_communication_timeout_ms }})
+    {% endif %}
+
+    {% for field in telemetry.fields %}
+    {{ field.name }}: {{ field.type.__name__ }}
+    {% endfor %}
+
+{% endfor %}
